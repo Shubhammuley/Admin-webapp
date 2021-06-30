@@ -1,27 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { Button, Layout, Menu  } from "antd";
 import { logoutUser } from "../../redux/action";
-import { Link, useLocation, NavLink } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const { Header, Content, Sider } = Layout;
 
 function Dashboard({ doUserLogout, children }) {
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
   const logout = async () => {
     await doUserLogout();
-  };
-
-  const onCollapse = (e) => {
-    setCollapsed(e);
   };
 
   return (
     <div>
        <Layout style={{ minHeight: '100vh' }}>
-        <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+        <Sider>
           <div className="logo" style={
             {
               height: '32px',
