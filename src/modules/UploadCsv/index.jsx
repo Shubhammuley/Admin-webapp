@@ -90,7 +90,7 @@ function UplaodCsv({ user }) {
   };
 
   return (
-    <div>
+    <div className="common-page">
       <PageHeader ghost={false} title="Upload CSV" />
       {!workloadDetails ? (
         <Upload

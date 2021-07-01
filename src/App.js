@@ -9,6 +9,7 @@ import Login from "./modules/Login";
 import Dashboard from "./modules/Dashboard";
 import UplaodCsv from "./modules/UploadCsv";
 import ImportHistory from "./modules/ImportHistory";
+import 'inter-ui';
 
 import "./App.css";
 import "antd/dist/antd.css";

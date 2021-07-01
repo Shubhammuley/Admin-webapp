@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { doUserLoginAction } from '../../redux/action';
 import callApi from "../../server";
-import "./style.scss";
+// import "./style.scss";
 
 const displayNotification = (type, message) => {
   notification[type]({
@@ -55,37 +55,41 @@ const Login = ({ doUserLogin, history, user }) => {
 
   return (
     <div className="main">
-      <PageHeader className="site-page-header" title="Login" />
-      <Form form={form} className="login-page">
-        <Form.Item
-          colon={false}
-          name="userNameOrEmail"
-          label="Username"
-          rules={[
-            {
-              required: true,
-              message: "Please enter your username!",
-            },
-          ]}
-        >
-          <Input placeholder="Username" onPressEnter={onSubmit} />
-        </Form.Item>
-        <Form.Item
-          colon={false}
-          name="password"
-          label="Password"
-          rules={[
-            {
-              required: true,
-              message: "Please enter your password!",
-            },
-          ]}
-        >
-          <Input.Password placeholder="Password" onPressEnter={onSubmit} />
-        </Form.Item>
-      </Form>
-      <div>
-        <Button onClick={onSubmit} loading={loading}>Login</Button>
+      <div className="login-page">
+        <div className="login-page-inner">
+          <PageHeader className="site-page-header" title="Login" />
+          <Form form={form}>
+            <Form.Item
+              colon={false}
+              name="userNameOrEmail"
+              label="Username"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your username!",
+                },
+              ]}
+            >
+              <Input placeholder="Username" onPressEnter={onSubmit} />
+            </Form.Item>
+            <Form.Item
+              colon={false}
+              name="password"
+              label="Password"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your password!",
+                },
+              ]}
+            >
+              <Input.Password placeholder="Password" onPressEnter={onSubmit} />
+            </Form.Item>
+          </Form>
+          <div>
+            <Button onClick={onSubmit} loading={loading}>Login</Button>
+          </div>
+        </div>
       </div>
     </div>
   );

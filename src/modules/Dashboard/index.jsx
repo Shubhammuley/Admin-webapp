@@ -4,7 +4,7 @@ import { PageHeader } from "antd";
 
 function Dashboard() {
   return (
-    <div>
+    <div className="common-page">
       <PageHeader
         ghost={false}
         title="Dashboard"

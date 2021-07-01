@@ -17,12 +17,11 @@ function Dashboard({ doUserLogout, children }) {
     <div>
        <Layout style={{ minHeight: '100vh' }}>
         <Sider>
-          <div className="logo" style={
-            {
-              height: '32px',
-              margin: '16px',
-            }
-          }/>
+          <div className="logo">
+            <Link to="/">
+              Logo
+            </Link>
+          </div>
           <Menu theme="dark" defaultSelectedKeys={[location.pathname]} mode="inline">
             <Menu.Item key="/">
               <Link to="/">
@@ -47,8 +46,8 @@ function Dashboard({ doUserLogout, children }) {
             <Button onClick={logout}>Logout</Button>
           </div>
         </Header>
-          <Content style={{ margin: '0 16px' }}>
-            <div className="site-layout-background" style={{ padding: 24, minHeight: 360 }}>
+          <Content>
+            <div className="site-layout-background" style={{ padding: 40, minHeight: 360 }}>
               {children}
             </div>
           </Content>
