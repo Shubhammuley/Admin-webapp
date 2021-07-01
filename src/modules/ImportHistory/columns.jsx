@@ -43,9 +43,9 @@ const getAction = (status, record, onClickButton) => {
     (status === "aborted" &&
       record.successSku.length === record.totalNumberOfRecord) ||
     (status === "aborted" &&
-      record.errorSku.length === record.totalNumberOfRecord)
+      record.successSku.length === 0)
   ) {
-    return null;
+    return '-';
   }
   if (
     (status === "aborted" || status === "error") &&

@@ -11,8 +11,8 @@ import UplaodCsv from "./modules/UploadCsv";
 import ImportHistory from "./modules/ImportHistory";
 import 'inter-ui';
 
-import "./App.css";
 import "antd/dist/antd.css";
+import "./App.css";
 
 function App({ checkLogin }) {
   const [loading, setLoading] = useState(true);

@@ -129,7 +129,6 @@ header.ant-layout-header.site-layout-background > div {
   background: #3b99fc;
   border-color: #3b99fc;
   height: 36px;
-  text-transform: uppercase;
 }
 
 .App .ant-btn:hover {
@@ -153,4 +152,9 @@ header.ant-layout-header.site-layout-background > div {
 
 .logo a img {
   height: 32px;
+}
+
+.filter-picker {
+  text-align: left;
+  margin-bottom: 20px;
 }
