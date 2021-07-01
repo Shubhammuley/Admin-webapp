@@ -41,7 +41,9 @@ const getAction = (status, record, onClickButton) => {
     status === "success" ||
     status === "failure" ||
     (status === "aborted" &&
-      record.successSku.length === record.totalNumberOfRecord)
+      record.successSku.length === record.totalNumberOfRecord) ||
+    (status === "aborted" &&
+      record.errorSku.length === record.totalNumberOfRecord)
   ) {
     return null;
   }
@@ -91,6 +93,9 @@ const getDuration = (time) => {
     return `${hrs}H ${min}M`;
   }
   else {
+    if (min === 0 && sec === 0) {
+      return '-';
+    }
     if (min === 0) {
       return `${sec}S`
     }
