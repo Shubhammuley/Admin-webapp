@@ -4,12 +4,19 @@ import { UploadOutlined } from "@ant-design/icons";
 import { connect } from "react-redux";
 import callApi from "../../server";
 import displayNotification from "../../shared/components/notifications";
+import { getDuration } from "../../utils/dateFormatter";
+import PageLoading from "../../shared/components/PageLoading";
 
 function UplaodCsv({ user }) {
   const [loading, setLoading] = useState(false);
   const [workloadDetails, setWorkloadDetails] = useState(null);
+  const [totalRemainingDuration, setTotalRemainingDuration] = useState(null);
+  const [processing, setProcessing] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
+  const [updateFinished, setUpdateFinished] = useState(false);
 
   const getWorkloadDetails = async () => {
+    setPageLoading(true);
     const result = await callApi({
       url: "/api/workload/v1/get/details",
       method: "get",
@@ -20,11 +27,80 @@ function UplaodCsv({ user }) {
     } else {
       setWorkloadDetails(null);
     }
+    setPageLoading(false);
   };
 
   useEffect(() => {
     getWorkloadDetails();
   }, []);
+
+  const updateInterval = useCallback(() => {
+    let interval = setInterval(() => {
+      if (
+        workloadDetails &&
+        workloadDetails.logDetails &&
+        workloadDetails.logDetails.startTime
+      ) {
+        if (
+          workloadDetails.logDetails.totalNumberOfRecord ===
+          workloadDetails.logDetails.recordEntered
+        ) {
+          setUpdateFinished(true);
+          setTotalRemainingDuration(null);
+          setProcessing(false);
+          clearInterval(interval);
+          return;
+        }
+        const averageDuration = workloadDetails.logDetails.averageDuration;
+        const totalDuration =
+          averageDuration * workloadDetails.logDetails.totalNumberOfRecord;
+        const timeRemaining =
+          totalDuration -
+          (new Date() - new Date(workloadDetails.logDetails.startTime));
+        const estimatedDuration = getDuration(timeRemaining);
+        if (timeRemaining > 0) {
+          setTotalRemainingDuration(estimatedDuration);
+          setProcessing(false);
+        } else {
+          setProcessing(true);
+          setTotalRemainingDuration(null);
+        }
+      }
+    }, 30000);
+  }, [workloadDetails]);
+
+  useEffect(() => {
+    if (
+      workloadDetails &&
+      workloadDetails.logDetails &&
+      workloadDetails.logDetails.startTime
+    ) {
+      if (
+        workloadDetails.logDetails.totalNumberOfRecord ===
+        workloadDetails.logDetails.recordEntered
+      ) {
+        setUpdateFinished(true);
+        setTotalRemainingDuration(null);
+        setProcessing(false);
+        return;
+      }
+      const averageDuration = workloadDetails.logDetails.averageDuration;
+      const totalDuration =
+        averageDuration * workloadDetails.logDetails.totalNumberOfRecord;
+      const timeRemaining =
+        totalDuration -
+        (new Date() - new Date(workloadDetails.logDetails.startTime));
+      const estimatedDuration = getDuration(timeRemaining);
+      if (timeRemaining > 0) {
+        setTotalRemainingDuration(estimatedDuration);
+        setProcessing(false);
+        updateInterval();
+      } else {
+        setProcessing(true);
+        setTotalRemainingDuration(null);
+      }
+    }
+  }, [updateInterval, workloadDetails]);
 
   const getExtension = (filename) => {
     const parts = filename && filename.split(".");
@@ -91,23 +167,62 @@ function UplaodCsv({ user }) {
 
   return (
     <div className="common-page">
-      <PageHeader ghost={false} title="Upload CSV" />
-      {!workloadDetails ? (
-        <Upload
-          listType="picture"
-          showUploadList={false}
-          accept=".csv"
-          beforeUpload={beforeUpload}
-        >
-          <Button loading={loading} icon={<UploadOutlined />}>
-            Click to Upload
-          </Button>
-        </Upload>
-      ) : (
-        <Button loading={loading} onClick={abortUpdate}>
-          Abort
-        </Button>
-      )}
+      <PageHeader ghost={false} title="Upload CSV">
+        {pageLoading ? (
+          <>
+            <p>Processing.. Please wait</p>
+            <PageLoading />
+          </>
+        ) : (
+          <>
+            {!workloadDetails ? (
+              <Upload
+                listType="picture"
+                showUploadList={false}
+                accept=".csv"
+                beforeUpload={beforeUpload}
+              >
+                <Button loading={loading} icon={<UploadOutlined />}>
+                  Click to Upload
+                </Button>
+              </Upload>
+            ) : (
+              <>
+                <Button loading={loading} onClick={abortUpdate}>
+                  Abort
+                </Button>
+                {totalRemainingDuration && !processing ? (
+                  <div>
+                    <p>
+                      Total remaining time to complete update:{" "}
+                      {totalRemainingDuration}
+                    </p>
+                    <p>
+                      Started at:{" "}
+                      {new Date(
+                        workloadDetails.logDetails.startTime
+                      ).toLocaleString()}
+                    </p>
+                    <p>
+                      Total number of records:{" "}
+                      {workloadDetails.logDetails.totalNumberOfRecord}
+                    </p>
+                    <p>
+                      Records updated:{" "}
+                      {workloadDetails.logDetails.recordEntered}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {processing && <p>Processing...</p>}
+                    {updateFinished && <p>Update process finished</p>}
+                  </>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </PageHeader>
     </div>
   );
 }
