@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { PageHeader, Button, Upload } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { PageHeader, Button, Upload, Modal } from "antd";
+import { UploadOutlined, SyncOutlined } from "@ant-design/icons";
 import { connect } from "react-redux";
 import callApi from "../../server";
 import displayNotification from "../../shared/components/notifications";
-import { getDuration } from "../../utils/dateFormatter";
+import { getDuration, getFormatedTime } from "../../utils/dateFormatter";
 import PageLoading from "../../shared/components/PageLoading";
 
 function UplaodCsv({ user }) {
@@ -14,24 +14,50 @@ function UplaodCsv({ user }) {
   const [processing, setProcessing] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
   const [updateFinished, setUpdateFinished] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [lastImportDetails, setLastImportDetails] = useState(null);
 
-  const getWorkloadDetails = async () => {
-    setPageLoading(true);
-    const result = await callApi({
-      url: "/api/workload/v1/get/details",
-      method: "get",
-    });
-    const { data } = result;
-    if (data) {
-      setWorkloadDetails(data);
-    } else {
-      setWorkloadDetails(null);
+  const getLastImportDetails = async () => {
+    try {
+      const result = await callApi({
+        url: "/api/workload/v1/get/last-import",
+        method: "get",
+      });
+      const { data } = result;
+      if (data) {
+        setLastImportDetails(data);
+      } else {
+        setLastImportDetails(null);
+      }
+    } catch (err) {
+      console.log("Error => ", err);
     }
-    setPageLoading(false);
   };
+
+  const getWorkloadDetails = useCallback(async () => {
+    setPageLoading(true);
+    try {
+      const result = await callApi({
+        url: "/api/workload/v1/get/details",
+        method: "get",
+      });
+      const { data } = result;
+      if (data) {
+        setWorkloadDetails(data);
+      } else {
+        setWorkloadDetails(null);
+      }
+      setPageLoading(false);
+    } catch (err) {
+      console.log("Error => ", err);
+      setPageLoading(false);
+    }
+    getLastImportDetails();
+  }, []);
 
   useEffect(() => {
     getWorkloadDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateInterval = useCallback(() => {
@@ -148,21 +174,45 @@ function UplaodCsv({ user }) {
       }
       return false;
     },
-    [getBase64ToSetImageURL, user._id]
+    [getBase64ToSetImageURL, getWorkloadDetails, user._id]
   );
 
   const abortUpdate = async () => {
     setLoading(true);
-    const result = await callApi({
-      url: "/api/workload/v1/abort",
-      method: "post",
-    });
-    const { status } = result;
-    if (status === "success") {
-      displayNotification("success", "Abort completed successfully");
-      getWorkloadDetails();
+    try {
+      const result = await callApi({
+        url: "/api/workload/v1/abort",
+        method: "post",
+      });
+      const { status } = result;
+      if (status === "success") {
+        displayNotification("success", "Abort completed successfully");
+        setUpdateFinished(true);
+        setTotalRemainingDuration(null);
+        setProcessing(false);
+        setWorkloadDetails(null);
+        setLastImportDetails(null);
+        setUpdateFinished(false);
+        getWorkloadDetails();
+      }
+      setLoading(false);
+    } catch (err) {
+      console.log("Error => ", err);
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+    abortUpdate();
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
   return (
@@ -170,46 +220,62 @@ function UplaodCsv({ user }) {
       <PageHeader ghost={false} title="Upload CSV">
         {pageLoading ? (
           <>
-            <p>Processing.. Please wait</p>
+            <p>Processing... Please wait</p>
             <PageLoading />
           </>
         ) : (
           <>
             {!workloadDetails ? (
-              <Upload
-                listType="picture"
-                showUploadList={false}
-                accept=".csv"
-                beforeUpload={beforeUpload}
-              >
-                <Button loading={loading} icon={<UploadOutlined />}>
-                  Click to Upload
-                </Button>
-              </Upload>
+              <>
+                <Upload
+                  listType="picture"
+                  showUploadList={false}
+                  accept=".csv"
+                  beforeUpload={beforeUpload}
+                >
+                  <Button loading={loading} icon={<UploadOutlined />}>
+                    Click to Upload
+                  </Button>
+                </Upload>
+                {lastImportDetails && (
+                  <div>
+                    <p>
+                      Last import: Start time -{" "}
+                      {getFormatedTime(lastImportDetails.startTime)} End time -{" "}
+                      {getFormatedTime(lastImportDetails.endTime)}
+                    </p>
+                  </div>
+                )}
+              </>
             ) : (
               <>
-                <Button loading={loading} onClick={abortUpdate}>
-                  Abort
-                </Button>
                 {totalRemainingDuration && !processing ? (
                   <div>
+                    <p>
+                      Currently one import is in progress{" "}
+                      <span>
+                        <SyncOutlined spin />
+                      </span>
+                    </p>
                     <p>
                       Total remaining time to complete update:{" "}
                       {totalRemainingDuration}
                     </p>
                     <p>
                       Started at:{" "}
-                      {new Date(
-                        workloadDetails.logDetails.startTime
-                      ).toLocaleString()}
+                      {getFormatedTime(workloadDetails.logDetails.startTime)}
                     </p>
                     <p>
                       Total number of records:{" "}
-                      {workloadDetails.logDetails.totalNumberOfRecord}
+                      {(
+                        workloadDetails.logDetails.totalNumberOfRecord || 0
+                      ).toLocaleString("en-US")}
                     </p>
                     <p>
                       Records updated:{" "}
-                      {workloadDetails.logDetails.recordEntered}
+                      {(
+                        workloadDetails.logDetails.recordEntered || 0
+                      ).toLocaleString("en-US")}
                     </p>
                   </div>
                 ) : (
@@ -218,6 +284,22 @@ function UplaodCsv({ user }) {
                     {updateFinished && <p>Update process finished</p>}
                   </>
                 )}
+                <Button loading={loading} onClick={showModal}>
+                  Abort
+                </Button>
+                <Modal
+                  title=""
+                  visible={isModalVisible}
+                  onOk={handleOk}
+                  onCancel={handleCancel}
+                >
+                  <div>
+                    <h2>Abort update</h2>
+                    <div>
+                      <p>This will stop import, do you want to continue?</p>
+                    </div>
+                  </div>
+                </Modal>
               </>
             )}
           </>
