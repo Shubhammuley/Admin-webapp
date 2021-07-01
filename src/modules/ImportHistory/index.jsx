@@ -57,26 +57,25 @@ function ImportHistory() {
     setShowModal(false);
   }, []);
   return (
-    <div>
-      <PageHeader ghost={false} title="Import History">
-        <Table
-          loading={{ spinning: loading }}
-          locale={{
-            emptyText: loading ? <p>loading...</p> : null,
-          }}
-          dataSource={dataSource && dataSource.data}
-          pagination={
-            dataSource &&
-            dataSource.metaData &&
-            dataSource.metaData[0] &&
-            dataSource.metaData[0].total > pagination.pageSize
-              ? pagination
-              : false
-          }
-          onChange={(pagination) => handleTableChange(pagination)}
-          columns={getColumns(onClickButton)}
-        />
-      </PageHeader>
+    <div className="common-page">
+      <PageHeader ghost={false} title="Import History"></PageHeader>
+      <Table
+        loading={{ spinning: loading }}
+        locale={{
+          emptyText: loading ? <p>loading...</p> : null,
+        }}
+        dataSource={dataSource && dataSource.data}
+        pagination={
+          dataSource &&
+          dataSource.metaData &&
+          dataSource.metaData[0] &&
+          dataSource.metaData[0].total > pagination.pageSize
+            ? pagination
+            : false
+        }
+        onChange={(pagination) => handleTableChange(pagination)}
+        columns={getColumns(onClickButton)}
+      />
       <ConfirmationModal onCancel={hideModal} show={showModal} list={errorSku}/>
     </div>
   );
