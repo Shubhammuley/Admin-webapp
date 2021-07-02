@@ -20,3 +20,33 @@ export const getDuration = (time) => {
     return `${min}M ${sec}S`;
   }
 };
+
+export const getTimeFromDate = (date) => {
+  const time24 = new Date(date).getHours();
+  let minutes = new Date(date).getMinutes();
+  if (minutes < 10) {
+    minutes = `0${minutes}`;
+  }
+  const time12 = {
+    time: "",
+    append: "",
+  };
+
+  if (time24 >= 0 && time24 <= 23) {
+    if (time24 < 12) {
+      time12.time = time24;
+      time12.append = "am";
+    } else {
+      time12.time = time24 % 12 || 12;
+      time12.append = "pm";
+    }
+  }
+  return `${time12.time}:${minutes} ${time12.append}`;
+};
+
+export const getFormatedTime = (date) => {
+  const month = new Date(date).toDateString().substr(4, 3);
+  const din = new Date(date).getDate();
+  const year = new Date(date).getFullYear();
+  return `${getTimeFromDate(date)} ${month} ${din}, ${year}`;
+};
