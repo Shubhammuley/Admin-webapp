@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { PageHeader, Button, Upload, Modal } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { connect } from "react-redux";
 import callApi from "../../server";
 import displayNotification from "../../shared/components/notifications";
-import { getDuration, getFormatedTime } from "../../utils/dateFormatter";
+import { getFormatedTime } from "../../utils/dateFormatter";
 import PageLoading from "../../shared/components/PageLoading";
 import deleteicon from "../../assets/icons/Error.png";
 import sandglass from "../../assets/images/hourglass.gif";
@@ -18,6 +18,10 @@ function UplaodCsv({ user }) {
   const [updateFinished, setUpdateFinished] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [lastImportDetails, setLastImportDetails] = useState(null);
+  const [calculating, setCalculating] = useState(false);
+
+  const workloadDetailsRef = useRef(workloadDetails);
+  workloadDetailsRef.current = workloadDetails;
 
   const getLastImportDetails = async () => {
     try {
@@ -37,7 +41,6 @@ function UplaodCsv({ user }) {
   };
 
   const getWorkloadDetails = useCallback(async () => {
-    setPageLoading(true);
     try {
       const result = await callApi({
         url: "/api/workload/v1/get/details",
@@ -58,16 +61,38 @@ function UplaodCsv({ user }) {
   }, []);
 
   useEffect(() => {
+    setPageLoading(true);
     getWorkloadDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getDuration = (time) => {
+    let sec = Math.floor(time / 1000);
+    let hrs = Math.floor(sec / 3600);
+    sec -= hrs * 3600;
+    let min = Math.floor(sec / 60);
+    sec -= min * 60;
+
+    if (hrs > 0) {
+      if (min === 0) {
+        return `${hrs}H`;
+      }
+      return `${hrs}H ${min}M`;
+    } else {
+      if (min === 0) {
+        return `${sec}S`;
+      }
+      return `${min}M`;
+    }
+  };
 
   const updateInterval = useCallback(() => {
     let interval = setInterval(() => {
       if (
         workloadDetails &&
         workloadDetails.logDetails &&
-        workloadDetails.logDetails.startTime
+        workloadDetails.logDetails.startTime &&
+        workloadDetails.logDetails.averageDuration
       ) {
         if (
           workloadDetails.logDetails.totalNumberOfRecord ===
@@ -101,7 +126,8 @@ function UplaodCsv({ user }) {
     if (
       workloadDetails &&
       workloadDetails.logDetails &&
-      workloadDetails.logDetails.startTime
+      workloadDetails.logDetails.startTime &&
+      workloadDetails.logDetails.averageDuration
     ) {
       if (
         workloadDetails.logDetails.totalNumberOfRecord ===
@@ -123,12 +149,15 @@ function UplaodCsv({ user }) {
         setTotalRemainingDuration(estimatedDuration);
         setProcessing(false);
         updateInterval();
+        setTimeout(() => {
+          getWorkloadDetails();
+        }, timeRemaining);
       } else {
         setProcessing(true);
         setTotalRemainingDuration(null);
       }
     }
-  }, [updateInterval, workloadDetails]);
+  }, [getWorkloadDetails, updateInterval, workloadDetails]);
 
   const getExtension = (filename) => {
     const parts = filename && filename.split(".");
@@ -161,8 +190,19 @@ function UplaodCsv({ user }) {
               method: "post",
             });
             if (result) {
+              setCalculating(true);
               getWorkloadDetails();
               displayNotification("success", result.message);
+              const interval = setInterval(async () => {
+                await getWorkloadDetails();
+                if (
+                  workloadDetailsRef?.current?.logDetails?.startTime &&
+                  workloadDetailsRef?.current?.logDetails?.averageDuration
+                ) {
+                  setCalculating(false);
+                  clearInterval(interval);
+                }
+              }, 30000);
             }
             setLoading(false);
           } catch (err) {
@@ -289,6 +329,9 @@ function UplaodCsv({ user }) {
                   </div>
                 ) : (
                   <>
+                    {calculating && (
+                      <p>Please wait, we are calculating estimation</p>
+                    )}
                     {processing && <p>Processing...</p>}
                     {updateFinished && <p>Update process finished</p>}
                   </>
