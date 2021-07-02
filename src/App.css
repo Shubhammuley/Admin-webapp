@@ -158,3 +158,8 @@ header.ant-layout-header.site-layout-background > div {
   text-align: left;
   margin-bottom: 20px;
 }
+
+.ant-modal-body .delete-box {
+  height: 300px;
+  overflow-y: auto;
+}
