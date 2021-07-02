@@ -6,6 +6,7 @@ import callApi from "../../server";
 import displayNotification from "../../shared/components/notifications";
 import { getDuration, getFormatedTime } from "../../utils/dateFormatter";
 import PageLoading from "../../shared/components/PageLoading";
+import deleteicon from "../../assets/icons/Error.png";
 
 function UplaodCsv({ user }) {
   const [loading, setLoading] = useState(false);
@@ -294,10 +295,9 @@ function UplaodCsv({ user }) {
                   onCancel={handleCancel}
                 >
                   <div>
+                    <img alt="deleteicon" src={deleteicon} />
                     <h2>Abort update</h2>
-                    <div>
-                      <p>This will stop import, do you want to continue?</p>
-                    </div>
+                    <span>This will stop import, do you want to continue?</span>
                   </div>
                 </Modal>
               </>
