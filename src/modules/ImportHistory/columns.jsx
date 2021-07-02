@@ -52,7 +52,7 @@ const getAction = (status, record, onClickButton) => {
     (status === "aborted" || status === "error") &&
     record.errorSku.length > 0
   ) {
-    return <Button onClick={() => onClickButton(record)}>View SKUs</Button>;
+    return <Button type="primary" onClick={() => onClickButton(record)}>View SKUs</Button>;
   }
 };
 
@@ -99,6 +99,7 @@ export const getColumns = (onClickButton) => {
       title: "Action",
       dataIndex: "status",
       width: "8%",
+      className: "text-center",
       render: (status, record) => {
         return <>{getAction(status, record, onClickButton)}</>;
       },
