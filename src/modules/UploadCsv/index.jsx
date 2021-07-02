@@ -6,6 +6,7 @@ import callApi from "../../server";
 import displayNotification from "../../shared/components/notifications";
 import { getDuration, getFormatedTime } from "../../utils/dateFormatter";
 import PageLoading from "../../shared/components/PageLoading";
+import deleteicon from "../../assets/icons/Error.png";
 import sandglass from "../../assets/images/hourglass.gif";
 
 function UplaodCsv({ user }) {
@@ -307,10 +308,9 @@ function UplaodCsv({ user }) {
                   onCancel={handleCancel}
                 >
                   <div className="delete-box">
+                    <img alt="deleteicon" src={deleteicon} />
                     <h2>Abort update</h2>
-                    <div>
-                      <p>This will stop import, do you want to continue?</p>
-                    </div>
+                    <span>This will stop import, do you want to continue?</span>
                   </div>
                 </Modal>
               </>

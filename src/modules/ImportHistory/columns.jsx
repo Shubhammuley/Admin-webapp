@@ -1,7 +1,7 @@
-import { Button } from "antd";
+import { Tooltip } from "antd";
 import React from "react";
+import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { getDuration, getFormatedTime } from "../../utils/dateFormatter";
-
 const getStatus = (status, record) => {
   if (status === "success") {
     return (
@@ -43,20 +43,19 @@ const getAction = (status, record, onClickButton) => {
     status === "failure" ||
     (status === "aborted" &&
       record.successSku.length === record.totalNumberOfRecord) ||
-    (status === "aborted" &&
-      record.successSku.length === 0)
+    (status === "aborted" && record.successSku.length === 0)
   ) {
-    return "-";
+    return null;
   }
   if (
     (status === "aborted" || status === "error") &&
     record.errorSku.length > 0
   ) {
-    return <Button type="primary" onClick={() => onClickButton(record)}>View SKUs</Button>;
+    return <span onClick={() => onClickButton(record)}><Tooltip title="View SKUs"><EyeOutlined /></Tooltip></span>;
   }
 };
 
-export const getColumns = (onClickButton) => {
+export const getColumns = (onClickButton, onClickDelete) => {
   return [
     {
       title: "Filename",
@@ -101,7 +100,12 @@ export const getColumns = (onClickButton) => {
       width: "12%",
       className: "text-center",
       render: (status, record) => {
-        return <>{getAction(status, record, onClickButton)}</>;
+        return (
+          <>
+            {getAction(status, record, onClickButton)}
+            <span onClick={() => onClickDelete(record.id)}><Tooltip title="Delete log"><DeleteOutlined /></Tooltip></span>
+          </>
+        );
       },
     },
   ];
