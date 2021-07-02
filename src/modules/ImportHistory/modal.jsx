@@ -21,11 +21,12 @@ function ConfirmationModal(props) {
       ]}
     >
       <div className="sku-list">
-        <ul>
-          {list.map((item) => (
-            <li>{item.skuId}</li>
+        <h3>{list.length} SKUs failed</h3>
+        <ol>
+          {list.map((item, index) => (
+            <li> {item.skuId}</li>
           ))}
-        </ul>
+        </ol>
       </div>
     </Modal>
   );
