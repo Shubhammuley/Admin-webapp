@@ -98,6 +98,7 @@ export const getColumns = (onClickButton, onClickDelete) => {
       title: "Action",
       dataIndex: "status",
       width: "8%",
+      className: "text-center",
       render: (status, record) => {
         return (
           <>

@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { PageHeader, Button, Upload, Modal } from "antd";
-import { UploadOutlined, SyncOutlined } from "@ant-design/icons";
+import { UploadOutlined } from "@ant-design/icons";
 import { connect } from "react-redux";
 import callApi from "../../server";
 import displayNotification from "../../shared/components/notifications";
 import { getDuration, getFormatedTime } from "../../utils/dateFormatter";
 import PageLoading from "../../shared/components/PageLoading";
 import deleteicon from "../../assets/icons/Error.png";
+import sandglass from "../../assets/images/hourglass.gif";
 
 function UplaodCsv({ user }) {
   const [loading, setLoading] = useState(false);
@@ -234,7 +235,11 @@ function UplaodCsv({ user }) {
                   accept=".csv"
                   beforeUpload={beforeUpload}
                 >
-                  <Button loading={loading} icon={<UploadOutlined />}>
+                  <Button
+                    type="primary"
+                    loading={loading}
+                    icon={<UploadOutlined />}
+                  >
                     Click to Upload
                   </Button>
                 </Upload>
@@ -242,8 +247,11 @@ function UplaodCsv({ user }) {
                   <div>
                     <p>
                       Last import: Start time -{" "}
-                      {getFormatedTime(lastImportDetails.startTime)} End time -{" "}
-                      {getFormatedTime(lastImportDetails.endTime)}
+                      {getFormatedTime(lastImportDetails.startTime)}{" "}
+                      {lastImportDetails.status === "aborted"
+                        ? "Abort time"
+                        : "End time"}{" "}
+                      - {getFormatedTime(lastImportDetails.endTime)}
                     </p>
                   </div>
                 )}
@@ -252,12 +260,10 @@ function UplaodCsv({ user }) {
               <>
                 {totalRemainingDuration && !processing ? (
                   <div>
-                    <p>
-                      Currently one import is in progress{" "}
-                      <span>
-                        <SyncOutlined spin />
-                      </span>
-                    </p>
+                    <div>
+                      <img src={sandglass} alt="sandglass gif" width="100px" />
+                      <p>Import in progress</p>
+                    </div>
                     <p>
                       Total remaining time to complete update:{" "}
                       {totalRemainingDuration}
@@ -272,12 +278,12 @@ function UplaodCsv({ user }) {
                         workloadDetails.logDetails.totalNumberOfRecord || 0
                       ).toLocaleString("en-US")}
                     </p>
-                    <p>
+                    {/* <p>
                       Records updated:{" "}
                       {(
                         workloadDetails.logDetails.recordEntered || 0
                       ).toLocaleString("en-US")}
-                    </p>
+                    </p> */}
                   </div>
                 ) : (
                   <>
@@ -285,7 +291,12 @@ function UplaodCsv({ user }) {
                     {updateFinished && <p>Update process finished</p>}
                   </>
                 )}
-                <Button loading={loading} onClick={showModal}>
+                <Button
+                  loading={loading}
+                  onClick={showModal}
+                  type="primary"
+                  danger
+                >
                   Abort
                 </Button>
                 <Modal
