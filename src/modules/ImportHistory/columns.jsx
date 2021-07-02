@@ -60,12 +60,12 @@ export const getColumns = (onClickButton, onClickDelete) => {
     {
       title: "Filename",
       dataIndex: "fileName",
-      width: "10%",
+      width: "18%",
     },
     {
       title: "Start Time",
       dataIndex: "startTime",
-      width: "12%",
+      width: "18%",
       render: (time) => {
         return <>{getFormatedTime(time)}</>;
       },
@@ -73,7 +73,7 @@ export const getColumns = (onClickButton, onClickDelete) => {
     {
       title: "End Time",
       dataIndex: "endTime",
-      width: "12%",
+      width: "18%",
       render: (time) => {
         return <>{getFormatedTime(time)}</>;
       },
@@ -81,7 +81,7 @@ export const getColumns = (onClickButton, onClickDelete) => {
     {
       title: "Duration",
       dataIndex: "duration",
-      width: "8%",
+      width: "18%",
       render: (duration) => {
         return <>{getDuration(duration)}</>;
       },
@@ -89,7 +89,7 @@ export const getColumns = (onClickButton, onClickDelete) => {
     {
       title: "Import Status",
       dataIndex: "status",
-      width: "14%",
+      width: "18%",
       render: (status, record) => {
         return <>{getStatus(status, record)}</>;
       },
@@ -97,13 +97,15 @@ export const getColumns = (onClickButton, onClickDelete) => {
     {
       title: "Action",
       dataIndex: "status",
-      width: "12%",
+      width: "10%",
       className: "text-center",
       render: (status, record) => {
         return (
           <>
+          <div>
             {getAction(status, record, onClickButton)}
             <span onClick={() => onClickDelete(record.id)}><Tooltip title="Delete log"><DeleteOutlined /></Tooltip></span>
+          </div>
           </>
         );
       },

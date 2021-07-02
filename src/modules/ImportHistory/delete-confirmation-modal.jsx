@@ -17,7 +17,7 @@ function DeleteConfirmationModal(props) {
       maskClosable={false}
       className="reopen-modal"
     >
-      <div className="box">
+      <div className="delete-box">
         <img alt="deleteicon" src={deleteicon} />
         <h2>Alert</h2>
         <span>Are you sure you want to delete this log?</span>

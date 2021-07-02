@@ -169,16 +169,17 @@ header.ant-layout-header.site-layout-background > div {
 }
 
 .ant-modal-body .sku-list {
-  height: 300px;
+  max-height: 300px;
   overflow-y: auto;
 }
 
 .ant-modal-body .delete-box {
   text-align: center;
+  margin-top: 20px;
 }
 
 .ant-modal-body .delete-box  h2 {
-  margin-top: 30px;
+  margin-top: 20px;
 } 
 
 .m-t-30 {
@@ -194,5 +195,12 @@ header.ant-layout-header.site-layout-background > div {
 }
 
 .ant-table-thead > tr > th.text-center, .ant-table-tbody > tr > td.text-center {
-  text-align: center;
+  text-align: right;
+}
+
+.ant-table-tbody > tr > td .anticon svg {
+  width: 16px;
+  height: 16px;
+  margin: 0 5px;
+  cursor: pointer;
 }
