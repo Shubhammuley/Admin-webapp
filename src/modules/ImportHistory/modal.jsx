@@ -20,7 +20,7 @@ function ConfirmationModal(props) {
         </Button>
       ]}
     >
-      <div className="delete-box">
+      <div className="sku-list">
         <ul>
           {list.map((item) => (
             <li>{item.skuId}</li>

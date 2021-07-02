@@ -243,15 +243,17 @@ function UplaodCsv({ user }) {
                   </Button>
                 </Upload>
                 {lastImportDetails && (
-                  <div>
+                  <div className="m-t-30">
+                    <h3>Last import</h3>
                     <p>
-                      Last import: Start time -{" "}
-                      {getFormatedTime(lastImportDetails.startTime)}{" "}
-                      {lastImportDetails.status === "aborted"
+                      Start time: {" "}
+                      <span>{getFormatedTime(lastImportDetails.startTime)}{" "}</span>
+                      
+                    </p>
+                    <p>{lastImportDetails.status === "aborted"
                         ? "Abort time"
                         : "End time"}{" "}
-                      - {getFormatedTime(lastImportDetails.endTime)}
-                    </p>
+                      : <span>{getFormatedTime(lastImportDetails.endTime)}</span></p>
                   </div>
                 )}
               </>
@@ -259,23 +261,23 @@ function UplaodCsv({ user }) {
               <>
                 {totalRemainingDuration && !processing ? (
                   <div>
-                    <div>
+                    <div className="gif-section">
                       <img src={sandglass} alt="sandglass gif" width="100px" />
                       <p>Import in progress</p>
                     </div>
                     <p>
                       Total remaining time to complete update:{" "}
-                      {totalRemainingDuration}
+                      <span>{totalRemainingDuration}</span>
                     </p>
                     <p>
                       Started at:{" "}
-                      {getFormatedTime(workloadDetails.logDetails.startTime)}
+                      <span>{getFormatedTime(workloadDetails.logDetails.startTime)}</span>
                     </p>
                     <p>
                       Total number of records:{" "}
-                      {(
+                      <span>{(
                         workloadDetails.logDetails.totalNumberOfRecord || 0
-                      ).toLocaleString("en-US")}
+                      ).toLocaleString("en-US")}</span>
                     </p>
                     {/* <p>
                       Records updated:{" "}
@@ -304,7 +306,7 @@ function UplaodCsv({ user }) {
                   onOk={handleOk}
                   onCancel={handleCancel}
                 >
-                  <div>
+                  <div className="delete-box">
                     <h2>Abort update</h2>
                     <div>
                       <p>This will stop import, do you want to continue?</p>

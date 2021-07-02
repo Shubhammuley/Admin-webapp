@@ -104,6 +104,10 @@ body,
   box-shadow: 0 4px 11px 0 rgb(0 0 0 / 5%);
 }
 
+.common-page p span {
+  font-weight: 600;
+}
+
 .common-page .ant-page-header {
   padding: 0;
   margin-bottom: 30px;
@@ -164,7 +168,31 @@ header.ant-layout-header.site-layout-background > div {
   margin-bottom: 20px;
 }
 
-.ant-modal-body .delete-box {
+.ant-modal-body .sku-list {
   height: 300px;
   overflow-y: auto;
+}
+
+.ant-modal-body .delete-box {
+  text-align: center;
+}
+
+.ant-modal-body .delete-box  h2 {
+  margin-top: 30px;
+} 
+
+.m-t-30 {
+  margin-top: 30px;
+}
+
+.m-t-30 h3 {
+  margin-bottom: 18px;
+}
+
+.gif-section {
+  margin-bottom: 30px;
+}
+
+.ant-table-thead > tr > th.text-center, .ant-table-tbody > tr > td.text-center {
+  text-align: center;
 }

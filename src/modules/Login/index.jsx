@@ -87,7 +87,7 @@ const Login = ({ doUserLogin, history, user }) => {
             </Form.Item>
           </Form>
           <div>
-            <Button onClick={onSubmit} loading={loading}>Login</Button>
+            <Button type="primary" onClick={onSubmit} loading={loading}>Login</Button>
           </div>
         </div>
       </div>

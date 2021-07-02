@@ -90,7 +90,7 @@ export const getColumns = (onClickButton) => {
     {
       title: "Import Status",
       dataIndex: "status",
-      width: "17%",
+      width: "14%",
       render: (status, record) => {
         return <>{getStatus(status, record)}</>;
       },
@@ -98,7 +98,7 @@ export const getColumns = (onClickButton) => {
     {
       title: "Action",
       dataIndex: "status",
-      width: "8%",
+      width: "12%",
       className: "text-center",
       render: (status, record) => {
         return <>{getAction(status, record, onClickButton)}</>;
