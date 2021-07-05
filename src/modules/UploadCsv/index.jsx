@@ -15,7 +15,6 @@ function UplaodCsv({ user }) {
   const [totalRemainingDuration, setTotalRemainingDuration] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [pageLoading, setPageLoading] = useState(false);
-  const [updateFinished, setUpdateFinished] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [lastImportDetails, setLastImportDetails] = useState(null);
   const [calculating, setCalculating] = useState(false);
@@ -49,6 +48,25 @@ function UplaodCsv({ user }) {
       const { data } = result;
       if (data) {
         setWorkloadDetails(data);
+        setProcessing(false);
+        if (
+          !(
+            workloadDetailsRef?.current?.logDetails?.startTime &&
+            workloadDetailsRef?.current?.logDetails?.averageDuration
+          )
+        ) {
+          setCalculating(true);
+          const interval = setInterval(async () => {
+            await getWorkloadDetails();
+            if (
+              workloadDetailsRef?.current?.logDetails?.startTime &&
+              workloadDetailsRef?.current?.logDetails?.averageDuration
+            ) {
+              setCalculating(false);
+              clearInterval(interval);
+            }
+          }, 30000);
+        }
       } else {
         setWorkloadDetails(null);
       }
@@ -80,7 +98,7 @@ function UplaodCsv({ user }) {
       return `${hrs}H ${min}M`;
     } else {
       if (min === 0) {
-        return `${sec}S`;
+        return `less than a minute`;
       }
       return `${min}M`;
     }
@@ -94,11 +112,7 @@ function UplaodCsv({ user }) {
         workloadDetails.logDetails.startTime &&
         workloadDetails.logDetails.averageDuration
       ) {
-        if (
-          workloadDetails.logDetails.totalNumberOfRecord ===
-          workloadDetails.logDetails.recordEntered
-        ) {
-          setUpdateFinished(true);
+        if (!workloadDetailsRef.current) {
           setTotalRemainingDuration(null);
           setProcessing(false);
           clearInterval(interval);
@@ -129,11 +143,7 @@ function UplaodCsv({ user }) {
       workloadDetails.logDetails.startTime &&
       workloadDetails.logDetails.averageDuration
     ) {
-      if (
-        workloadDetails.logDetails.totalNumberOfRecord ===
-        workloadDetails.logDetails.recordEntered
-      ) {
-        setUpdateFinished(true);
+      if (!workloadDetailsRef.current) {
         setTotalRemainingDuration(null);
         setProcessing(false);
         return;
@@ -153,6 +163,12 @@ function UplaodCsv({ user }) {
           getWorkloadDetails();
         }, timeRemaining);
       } else {
+        const interval = setInterval(async () => {
+          await getWorkloadDetails();
+          if (!workloadDetailsRef.current) {
+            clearInterval(interval);
+          }
+        }, 30000);
         setProcessing(true);
         setTotalRemainingDuration(null);
       }
@@ -190,19 +206,8 @@ function UplaodCsv({ user }) {
               method: "post",
             });
             if (result) {
-              setCalculating(true);
               getWorkloadDetails();
               displayNotification("success", result.message);
-              const interval = setInterval(async () => {
-                await getWorkloadDetails();
-                if (
-                  workloadDetailsRef?.current?.logDetails?.startTime &&
-                  workloadDetailsRef?.current?.logDetails?.averageDuration
-                ) {
-                  setCalculating(false);
-                  clearInterval(interval);
-                }
-              }, 30000);
             }
             setLoading(false);
           } catch (err) {
@@ -229,12 +234,10 @@ function UplaodCsv({ user }) {
       const { status } = result;
       if (status === "success") {
         displayNotification("success", "Abort completed successfully");
-        setUpdateFinished(true);
         setTotalRemainingDuration(null);
         setProcessing(false);
         setWorkloadDetails(null);
         setLastImportDetails(null);
-        setUpdateFinished(false);
         getWorkloadDetails();
       }
       setLoading(false);
@@ -287,14 +290,18 @@ function UplaodCsv({ user }) {
                   <div className="m-t-30">
                     <h3>Last import</h3>
                     <p>
-                      Start time: {" "}
-                      <span>{getFormatedTime(lastImportDetails.startTime)}{" "}</span>
-                      
+                      Start time:{" "}
+                      <span>
+                        {getFormatedTime(lastImportDetails.startTime)}{" "}
+                      </span>
                     </p>
-                    <p>{lastImportDetails.status === "aborted"
+                    <p>
+                      {lastImportDetails.status === "aborted"
                         ? "Abort time"
                         : "End time"}{" "}
-                      : <span>{getFormatedTime(lastImportDetails.endTime)}</span></p>
+                      :{" "}
+                      <span>{getFormatedTime(lastImportDetails.endTime)}</span>
+                    </p>
                   </div>
                 )}
               </>
@@ -312,13 +319,17 @@ function UplaodCsv({ user }) {
                     </p>
                     <p>
                       Started at:{" "}
-                      <span>{getFormatedTime(workloadDetails.logDetails.startTime)}</span>
+                      <span>
+                        {getFormatedTime(workloadDetails.logDetails.startTime)}
+                      </span>
                     </p>
                     <p>
                       Total number of records:{" "}
-                      <span>{(
-                        workloadDetails.logDetails.totalNumberOfRecord || 0
-                      ).toLocaleString("en-US")}</span>
+                      <span>
+                        {(
+                          workloadDetails.logDetails.totalNumberOfRecord || 0
+                        ).toLocaleString("en-US")}
+                      </span>
                     </p>
                     {/* <p>
                       Records updated:{" "}
@@ -333,7 +344,6 @@ function UplaodCsv({ user }) {
                       <p>Please wait, we are calculating estimation</p>
                     )}
                     {processing && <p>Processing...</p>}
-                    {updateFinished && <p>Update process finished</p>}
                   </>
                 )}
                 <Button
